@@ -43,33 +43,21 @@ const Todos = () => {
     }
   }, [todos]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // const [currentStatus, setCurrentStatus] = useState("new");
-
-  // const currentStatus = 22;
-  // setCurrentStatus((prevCurrentStatus) => prevCurrentStatus * 2);
-
   const { push } = useHistory();
 
   Logger.info("push", push);
 
   function tabHandler(status) {
-    // setCurrentStatus(status);
     push({
       search: `status=${status}`,
     });
-    // про синхронность setState
-    // Logger.info("tabHandler", currentStatus);
   }
-
-  // useEffect(() => {
-  //   // Logger.info("useEffect", currentStatus);
-  // }, [currentStatus]);
 
   useEffect(() => {
     push({
       search: "status=new",
     });
-  }, []);
+  }, [push]);
 
   useEffect(() => {
     localStorage.setItem("switchTodo", switchTodo);

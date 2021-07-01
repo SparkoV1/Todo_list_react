@@ -19,12 +19,6 @@ export const OpenRoute = ({ component: Component, ...rest }) => (
   />
 );
 
-// <Route>
-//   <Suspense fallback={<FullPageLoader />}>
-//         <Component {...props} />
-//       </Suspense>
-// </Route>
-
 export const PrivateRoute = ({ component: Component, auth, ...rest }) => (
   <Route
     {...rest}

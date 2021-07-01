@@ -65,7 +65,7 @@ const TodoItem = ({ todo, todos, setTodos }) => {
             value={editingText}
           />
         ) : (
-          <p className="todos__text">{todo.text}!</p>
+          <p className="todos__text">{todo.text}</p>
         )}
         <div className="todos__actions">
           <FormControl className="todos__select">

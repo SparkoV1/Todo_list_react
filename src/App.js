@@ -3,8 +3,7 @@ import { lightGreen, pink } from "@material-ui/core/colors";
 import { BrowserRouter as Router, Switch, Redirect } from "react-router-dom";
 import Header from "./components/Header/Header";
 import { ROUTES } from "./constants";
-import { lazy, useEffect, useState } from "react";
-import StoreContext from "./StoreContext";
+import { lazy } from "react";
 import { OpenRoute, PrivateRoute } from "./utils/Routes";
 
 const theme = createMuiTheme({
@@ -19,58 +18,26 @@ const theme = createMuiTheme({
       main: pink[500],
       dark: pink[600],
     },
-    // default:{
-    //   light: pink[400],
-    //   main: pink[500],
-    //   dark: pink[600],
-    // }
-  },
-  breakpoints: {
-    values: {
-      xs: 0,
-      sm: 600,
-      md: 977,
-      lg: 1173,
-      xl: 1589,
-      xxl: 1901,
-    },
   },
 });
 
 const MainLayout = lazy(() => import(/* webpackChunkName: "MainLayout" */ "./layouts/MainLayout/MainLayout"));
 const LoginLayout = lazy(() => import(/* webpackChunkName: "LoginLayout" */ "./layouts/LoginLayout/LoginLayout"));
+const UsersLayout = lazy(() => import(/* webpackChunkName: "LoginLayout" */ "./layouts/UsersLayout/UsersLayout"));
 
 const App = () => {
-  const [isAuth, setIsAuth] = useState(false);
-  const [username, setUsername] = useState("");
-  const [registeredUsers, setRegisteredUsers] = useState(JSON.parse(localStorage.getItem("users")) || []);
-
-  useEffect(() => {
-    localStorage.setItem("users", JSON.stringify(registeredUsers));
-  }, [registeredUsers]);
-
   return (
     <MuiThemeProvider theme={theme}>
       <Router>
-        <StoreContext.Provider
-          value={{
-            isAuth,
-            setIsAuth,
-            username,
-            setUsername,
-            registeredUsers,
-            setRegisteredUsers,
-          }}
-        >
-          <Header />
+        <Header />
 
-          {/*работает как обычный switch-case, перебирая роуты*/}
-          <Switch>
-            <OpenRoute exact path={ROUTES.home} component={LoginLayout} />
-            <PrivateRoute exact path={ROUTES.todos} component={MainLayout} auth={isAuth} />
-            <Redirect to={ROUTES.home} />
-          </Switch>
-        </StoreContext.Provider>
+        {/*работает как обычный switch-case, перебирая роуты*/}
+        <Switch>
+          <OpenRoute exact path={ROUTES.home} component={LoginLayout} />
+          <PrivateRoute exact path={ROUTES.todos} component={MainLayout} auth={true} />
+          <PrivateRoute exact path={ROUTES.users} component={UsersLayout} auth={true} />
+          <Redirect to={ROUTES.home} />
+        </Switch>
       </Router>
     </MuiThemeProvider>
   );

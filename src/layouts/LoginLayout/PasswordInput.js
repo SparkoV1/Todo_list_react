@@ -17,7 +17,7 @@ const PasswordInput = ({
 
   return (
     <Controller
-      name="password"
+      name={name}
       control={control}
       render={({ field }) => (
         <TextField
