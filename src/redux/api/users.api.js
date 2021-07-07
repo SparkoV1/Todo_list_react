@@ -1,5 +1,12 @@
 import { FAKE_API } from "../../utils/Api";
-import { getUsersError, getUsersStart, getUsersSuccess } from "../actions/users.action";
+import {
+  getUserPostsError,
+  getUserPostsStart,
+  getUserPostsSuccess,
+  getUsersError,
+  getUsersStart,
+  getUsersSuccess,
+} from "../actions/users.action";
 
 export const getUsers = () => {
   return (dispatch) => {
@@ -12,5 +19,17 @@ export const getUsers = () => {
       .catch((error) => {
         dispatch(getUsersError(error));
       });
+  };
+};
+
+export const getUserPosts = (id) => {
+  return async (dispatch) => {
+    dispatch(getUserPostsStart());
+    try {
+      const { data } = await FAKE_API.get(`/users/${id}/posts`);
+      dispatch(getUserPostsSuccess(data));
+    } catch (error) {
+      dispatch(getUserPostsError(error));
+    }
   };
 };

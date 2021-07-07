@@ -9,7 +9,7 @@ import Logger from "../../utils/Logger";
 
 const LoginLayout = () => {
   const schema = yup.object().shape({
-    email: yup.string().email("введи нормальную почту!").required("!!!"),
+    email: yup.string().email("Please enter correct Email").required(),
     password: yup.string().min(8, "Password must be more than 7 characters").required(),
   });
 

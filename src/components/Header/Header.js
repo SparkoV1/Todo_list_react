@@ -19,9 +19,7 @@ const Header = () => {
             <NavLink exact to={ROUTES.todos}>
               Todos
             </NavLink>
-            <NavLink exact to={ROUTES.users}>
-              Users
-            </NavLink>
+            <NavLink to={ROUTES.users}>Users</NavLink>
           </nav>
         </div>
       </div>

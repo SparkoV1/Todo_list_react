@@ -1,0 +1,8 @@
+.users-list {
+  display: grid;
+  gap: 10px;
+
+  .MuiButtonBase-root {
+    justify-content: start !important;
+  }
+}

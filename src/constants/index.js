@@ -4,4 +4,5 @@ export const ROUTES = {
   home: "/",
   todos: "/todos",
   users: "/users",
+  singleUser: "/users/:userId",
 };

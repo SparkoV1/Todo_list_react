@@ -35,7 +35,7 @@ const App = () => {
         <Switch>
           <OpenRoute exact path={ROUTES.home} component={LoginLayout} />
           <PrivateRoute exact path={ROUTES.todos} component={MainLayout} auth={true} />
-          <PrivateRoute exact path={ROUTES.users} component={UsersLayout} auth={true} />
+          <PrivateRoute path={[ROUTES.users, ROUTES.singleUser]} component={UsersLayout} auth={true} />
           <Redirect to={ROUTES.home} />
         </Switch>
       </Router>

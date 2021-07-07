@@ -1,0 +1,30 @@
+@keyframes skeleton {
+  from {
+    left: -50%;
+  }
+  to {
+    left: 300%;
+  }
+}
+
+.skeleton {
+  width: 100%;
+  height: 20px;
+  border-radius: 8px;
+  margin: 5px 0;
+  background: #f2f2f2;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    width: 40px;
+    height: 200%;
+    background: rgba(255, 255, 255, 0.6);
+    transform: skewX(-45deg);
+    box-shadow: 0 0 10px #fff;
+    animation: skeleton 1s ease-in-out infinite;
+  }
+}
