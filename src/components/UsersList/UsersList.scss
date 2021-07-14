@@ -1,8 +1,16 @@
-.users-list {
-  display: grid;
-  gap: 10px;
+.users {
+  padding: 0 0 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 
-  .MuiButtonBase-root {
-    justify-content: start !important;
+  &__item {
+    background: rgba(204, 204, 204, 0.4);
+    padding: 10px 20px;
+    border-radius: 10px;
+    .MuiButton-label {
+      text-transform: none;
+      justify-content: flex-start;
+    }
   }
 }

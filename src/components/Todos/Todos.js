@@ -1,70 +1,60 @@
-import "./Todos.scss";
-import { Button, FormControlLabel, TextField } from "@material-ui/core";
+import { Button, TextField } from "@material-ui/core";
+import { Pagination } from "@material-ui/lab";
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router";
 import { STATUSES } from "../../constants";
-import Logger from "../../utils/Logger";
-import { queryStringToObject } from "../../utils/queryStringHelpers";
-import IOSSwitch from "../IOSSwitch/IOSSwitch";
+import { createTodo, getTodos } from "../../redux/api/todos.api";
+import { objectToQueryString, queryStringToObject } from "../../utils/queryStringHelpers";
+import DialogDelete from "../DialogDelete/DialogDelete";
+import Search from "../Search/Search";
+import Skeleton from "../Skeleton/Skeleton";
 import TodoItem from "../TodoItem/TodoItem";
+import "./Todos.scss";
 
 const Todos = () => {
-  const [todos, setTodos] = useState(JSON.parse(localStorage.getItem("todos")) || []);
+  const { push } = useHistory();
+  const { search } = useLocation();
+  const dispatch = useDispatch();
+
+  const { getTodosLoading, count, todos, totalPages, page } = useSelector(({ todos }) => todos);
+  const { isOpened } = useSelector(({ DELETE_TODO_DIALOG }) => DELETE_TODO_DIALOG);
+
   const [newTodo, setNewTodo] = useState("");
-  const [switchTodo, setSwitchTodo] = useState(localStorage.getItem("switchTodo") || "on");
+
+  const queryParams = search ? queryStringToObject(search) : {};
 
   const inputChange = (e) => {
     setNewTodo(e.target.value);
   };
 
-  const addTodo = (e) => {
+  const addTodo = async (e) => {
     e.preventDefault();
-    const newTodoItem = {
-      id: Date.now(),
-      text: newTodo,
-      status: "new",
-    };
 
-    setTodos((prevState) => [newTodoItem, ...prevState]);
+    dispatch(
+      createTodo(
+        {
+          title: newTodo,
+        },
+        queryParams,
+      ),
+    );
     setNewTodo("");
   };
 
-  function saveTodos() {
-    localStorage.setItem("todos", JSON.stringify(todos));
+  function tabHandler(status) {
+    push({
+      search: objectToQueryString({ ...queryParams, page: "", status }),
+    });
   }
 
-  const switchHandler = ({ target: { checked } }) => {
-    setSwitchTodo(checked);
+  const paginationHandler = (e, page) => {
+    push({ search: objectToQueryString({ ...queryParams, page }) });
   };
 
   useEffect(() => {
-    if (switchTodo) {
-      saveTodos();
-    }
-  }, [todos]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const { push } = useHistory();
-
-  Logger.info("push", push);
-
-  function tabHandler(status) {
-    push({
-      search: `status=${status}`,
-    });
-  }
-
-  useEffect(() => {
-    push({
-      search: "status=new",
-    });
-  }, [push]);
-
-  useEffect(() => {
-    localStorage.setItem("switchTodo", switchTodo);
-  }, [switchTodo]);
-
-  const location = useLocation();
-  Logger.info("location", queryStringToObject(location.search).status);
+    dispatch(getTodos({ ...queryParams }));
+  }, [dispatch, search]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="todos">
@@ -82,43 +72,54 @@ const Todos = () => {
           Add todo
         </Button>
       </form>
-      {todos.length ? (
-        <Button variant="outlined" color="primary" className="todos__save" onClick={saveTodos}>
-          Save todos
-        </Button>
-      ) : null}
 
-      <div className="todos__autosave">
-        <FormControlLabel
-          control={<IOSSwitch checked={switchTodo === "on"} onChange={switchHandler} />}
-          label="Autosave"
-        />
-      </div>
+      <Search />
 
-      <div className="todos__filter">
-        {STATUSES.map((status) => (
-          <Button
-            key={status}
-            variant={status === queryStringToObject(location.search).status ? "contained" : "outlined"}
-            color="primary"
-            onClick={() => tabHandler(status)}
-          >
-            {status}
-          </Button>
-        ))}
-      </div>
+      {getTodosLoading ? (
+        <>
+          <Skeleton height={70} />
+          <Skeleton height={50} />
+          <Skeleton height={50} />
+        </>
+      ) : (
+        <>
+          <div className="todos__filter">
+            {STATUSES.map((status) => (
+              <Button
+                key={status}
+                variant={status === queryStringToObject(search).status ? "contained" : "outlined"}
+                color="primary"
+                onClick={() => tabHandler(status)}
+              >
+                {status}
+              </Button>
+            ))}
+          </div>
 
-      <div className="todos__list">
-        {todos.length ? (
-          todos
-            .filter((todo) => todo.status === queryStringToObject(location.search).status)
-            .map((todo) => <TodoItem key={todo.id} todo={todo} todos={todos} setTodos={setTodos} />)
-        ) : (
-          <h2>No todos...</h2>
-        )}
-      </div>
+          <div className="todos__list">
+            {count > 0 ? todos.map((todo) => <TodoItem key={todo._id} todo={todo} />) : <h2>No todos...</h2>}
+          </div>
+
+          {count > 3 ? (
+            <div className="todos__pagination">
+              <Pagination
+                variant="outlined"
+                shape="rounded"
+                color="secondary"
+                size="small"
+                showFirstButton
+                showLastButton
+                count={totalPages}
+                page={page ? page : 1}
+                onChange={paginationHandler}
+              />
+            </div>
+          ) : null}
+
+          {isOpened ? <DialogDelete /> : null}
+        </>
+      )}
     </div>
   );
 };
-
 export default Todos;

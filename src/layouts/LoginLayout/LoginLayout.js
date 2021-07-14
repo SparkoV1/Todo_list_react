@@ -1,61 +1,40 @@
-import { Button, TextField } from "@material-ui/core";
-import React from "react";
-import { useForm, Controller } from "react-hook-form";
-import PasswordInput from "./PasswordInput";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import { Link } from "@material-ui/core";
+import React, { lazy } from "react";
+import { useLocation } from "react-router";
+import { Link as RouterLink, Switch } from "react-router-dom";
+import { ROUTES } from "../../constants";
+import { OpenRoute } from "../../utils/Routes";
 import "./LoginLayout.scss";
-import Logger from "../../utils/Logger";
 
 const LoginLayout = () => {
-  const schema = yup.object().shape({
-    email: yup.string().email("Please enter correct Email").required(),
-    password: yup.string().min(8, "Password must be more than 7 characters").required(),
-  });
+  const RegisterForm = lazy(() => import(/* webpackChunkName: "RegisterForm" */ "./RegisterForm/RegisterForm"));
+  const LoginForm = lazy(() => import(/* webpackChunkName: "LoginForm" */ "./LoginForm/LoginForm"));
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-    resolver: yupResolver(schema),
-  });
-
-  const onSubmit = ({ email, password }) => {
-    Logger.info(email, password);
-  };
+  const { pathname } = useLocation();
 
   return (
     <div className="login-page">
-      <h2 className="login-page__title">Login</h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="login-page__form">
-        <Controller
-          name="email"
-          control={control}
-          render={({ field }) => (
-            <TextField
-              label="Email*"
-              variant="outlined"
-              size="small"
-              fullWidth
-              margin="dense"
-              error={!!errors.email?.message}
-              helperText={errors.email?.message}
-              {...field}
-            />
-          )}
-        />
-
-        <PasswordInput control={control} errors={errors} />
-
-        <Button type="submit" fullWidth className="login-page__submit" variant="contained" color="primary">
-          Login
-        </Button>
-      </form>
+      <div className="login-page__switch-form">
+        <Switch>
+          <OpenRoute exact path={ROUTES.register} component={RegisterForm} />
+          <OpenRoute exact path={ROUTES.login} component={LoginForm} />
+        </Switch>
+        {pathname.includes("login") ? (
+          <p className="login-page__switcher">
+            Do not have an account?{" "}
+            <Link component={RouterLink} to={ROUTES.register}>
+              Register
+            </Link>
+          </p>
+        ) : pathname.includes("register") ? (
+          <p className="login-page__switcher">
+            Already registered?{" "}
+            <Link component={RouterLink} to={ROUTES.login}>
+              Login
+            </Link>
+          </p>
+        ) : null}
+      </div>
     </div>
   );
 };

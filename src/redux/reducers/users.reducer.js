@@ -1,21 +1,26 @@
 import {
+  CLEAR_USER_DATA,
   GET_USER_POSTS_ERROR,
   GET_USER_POSTS_START,
   GET_USER_POSTS_SUCCESS,
+  GET_USER_TODOS_ERROR,
+  GET_USER_TODOS_START,
+  GET_USER_TODOS_SUCCESS,
   GET_USERS_ERROR,
   GET_USERS_START,
   GET_USERS_SUCCESS,
-  CLEAR_USER_POSTS,
-} from "../actions/users.action";
+} from "../actions/users.actions";
 
 const initialState = {
   loading: false,
-  users: null,
-  getUsersError: null,
-
+  users: [],
+  error: null,
+  todosLoading: false,
+  todos: [],
+  todosErrors: null,
   postsLoading: false,
   posts: [],
-  postsError: null,
+  postsErrors: null,
 };
 
 export default function usersReducer(state = initialState, action) {
@@ -29,13 +34,33 @@ export default function usersReducer(state = initialState, action) {
       return {
         ...state,
         loading: false,
+        error: null,
         users: action.payload,
       };
     case GET_USERS_ERROR:
       return {
         ...state,
         loading: false,
-        getUsersError: action.payload,
+        error: action.payload.error,
+      };
+
+    case GET_USER_TODOS_START:
+      return {
+        ...state,
+        todosLoading: true,
+      };
+    case GET_USER_TODOS_SUCCESS:
+      return {
+        ...state,
+        todosLoading: false,
+        todosErrors: null,
+        todos: action.payload,
+      };
+    case GET_USER_TODOS_ERROR:
+      return {
+        ...state,
+        todosLoading: false,
+        todosErrors: action.payload.error,
       };
 
     case GET_USER_POSTS_START:
@@ -47,18 +72,20 @@ export default function usersReducer(state = initialState, action) {
       return {
         ...state,
         postsLoading: false,
+        postsErrors: null,
         posts: action.payload,
       };
     case GET_USER_POSTS_ERROR:
       return {
         ...state,
         postsLoading: false,
-        postsError: action.payload,
+        postsErrors: action.payload.error,
       };
-    case CLEAR_USER_POSTS:
+    case CLEAR_USER_DATA:
       return {
         ...state,
         posts: [],
+        todos: [],
       };
 
     default:

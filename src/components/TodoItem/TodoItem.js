@@ -1,71 +1,53 @@
-import { Button, Checkbox, FormControl, InputLabel, MenuItem, Select, TextField } from "@material-ui/core";
+import { Button, FormControl, InputLabel, MenuItem, Select, TextField } from "@material-ui/core";
 import { Delete, Edit } from "@material-ui/icons";
 import PropTypes from "prop-types";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { STATUSES } from "../../constants";
-import DialogDelete from "../DialogDelete/DialogDelete";
+import { toggleGlobalDialog } from "../../redux/actions/dialogs.actions";
+import { updateTodo } from "../../redux/api/todos.api";
 
-const TodoItem = ({ todo, todos, setTodos }) => {
+const TodoItem = ({ todo }) => {
+  const dispatch = useDispatch();
+
   const [isEditorActive, setIsEditorActive] = useState(false);
   const [editingText, setEditingText] = useState("");
 
-  function helper(id, key, value) {
-    const newTodos = todos.map((todo) => {
-      if (todo.id === id) {
-        return { ...todo, [key]: value };
-      }
-      return todo;
-    });
-
-    setTodos(newTodos);
-  }
-
-  const editTodo = (id, text) => {
-    setEditingText(text);
+  const editTodo = (id, title) => {
+    setEditingText(title);
     setIsEditorActive((prevState) => !prevState);
 
     if (isEditorActive) {
-      helper(id, "text", editingText);
+      dispatch(updateTodo({ id, key: "title", value: editingText }));
     }
   };
 
-  function statusHandler(id) {
-    helper(id, "status", todo.status !== "done" ? "done" : "new");
-  }
-
   function changeStatus(e, id) {
-    helper(id, "status", e.target.value);
-  }
-
-  function deleteTodo(id) {
-    setTodos(todos.filter((todo) => todo.id !== id));
+    dispatch(updateTodo({ id, key: "status", value: e.target.value }));
   }
 
   function changeTodoText(e) {
     setEditingText(e.target.value);
   }
 
-  function saveTodoByClickEnter(e, id, text) {
+  function saveTodoByClickEnter(e, id, title) {
     if (e.key === "Enter") {
-      editTodo(id, text);
+      editTodo(id, title);
     }
   }
 
-  const [isDialogDeleteOpened, setIsDialogDeleteOpened] = useState(false);
-
   return (
     <>
-      <div className="todos__item" key={todo.id}>
-        <Checkbox color="default" checked={todo.status === "done"} onChange={() => statusHandler(todo.id)} />
+      <div className="todos__item" key={todo._id}>
         {isEditorActive ? (
           <TextField
             autoFocus
-            onKeyUp={(e) => saveTodoByClickEnter(e, todo.id, todo.text)}
+            onKeyUp={(e) => saveTodoByClickEnter(e, todo._id, todo.title)}
             onChange={changeTodoText}
             value={editingText}
           />
         ) : (
-          <p className="todos__text">{todo.text}</p>
+          <p className="todos__text">{todo.title}</p>
         )}
         <div className="todos__actions">
           <FormControl className="todos__select">
@@ -73,7 +55,7 @@ const TodoItem = ({ todo, todos, setTodos }) => {
             <Select
               value={todo.status}
               onChange={function (e) {
-                return changeStatus(e, todo.id);
+                return changeStatus(e, todo._id);
               }}
             >
               {STATUSES.map((status) => (
@@ -88,7 +70,7 @@ const TodoItem = ({ todo, todos, setTodos }) => {
             variant="contained"
             color="primary"
             size="small"
-            onClick={() => editTodo(todo.id, todo.text)}
+            onClick={() => editTodo(todo._id, todo.title)}
           >
             Edit
           </Button>
@@ -98,31 +80,18 @@ const TodoItem = ({ todo, todos, setTodos }) => {
             variant="contained"
             color="secondary"
             size="small"
-            onClick={() => setIsDialogDeleteOpened(true)}
+            onClick={() => dispatch(toggleGlobalDialog("DELETE_TODO_DIALOG", true, { todoId: todo._id }))}
           >
             Delete
           </Button>
         </div>
       </div>
-      <DialogDelete
-        isDialogDeleteOpened={isDialogDeleteOpened}
-        setIsDialogDeleteOpened={setIsDialogDeleteOpened}
-        deleteFunction={() => deleteTodo(todo.id)}
-      />
     </>
   );
 };
 
 TodoItem.propTypes = {
   todo: PropTypes.object.isRequired,
-  todos: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      text: PropTypes.string.isRequired,
-      status: PropTypes.string.isRequired,
-    }),
-  ).isRequired,
-  setTodos: PropTypes.func.isRequired,
 };
 
 export default TodoItem;

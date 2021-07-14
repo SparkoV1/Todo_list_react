@@ -1,39 +1,36 @@
-import React, { useEffect } from "react";
-import { getUsers } from "../../redux/api/users.api";
-import { useDispatch, useSelector } from "react-redux";
-import Skeleton from "../Skeleton/Skeleton";
 import { Button } from "@material-ui/core";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { ROUTES } from "../../constants";
+import { getUsers } from "../../redux/api/users.api";
+import Skeleton from "../Skeleton/Skeleton";
 import "./UsersList.scss";
-import { useLocation } from "react-router";
 
 const UsersList = () => {
   const dispatch = useDispatch();
-
-  const { loading, users } = useSelector(({ users }) => users);
+  const { users, loading } = useSelector(({ users }) => users);
 
   useEffect(() => {
-    if (!users || !users.length) {
+    if (!users.length) {
       dispatch(getUsers());
     }
   }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { pathname } = useLocation();
-
-  if (!users || loading) {
+  if (loading) {
     return (
       <>
-        <Skeleton height={40} />
-        <Skeleton height={40} />
-        <Skeleton height={40} />
+        <Skeleton height={30} />
+        <Skeleton height={30} />
+        <Skeleton height={30} />
       </>
     );
   }
 
   return (
-    <div className="users-list">
+    <div className="users">
       {users.map((user) => (
-        <Button component={Link} to={`${pathname}/${user.id}`} variant="outlined" color="primary" key={user.id}>
+        <Button component={Link} to={`${ROUTES.users}/${user.id}`} className="users__item" key={user.id}>
           {user.name}
         </Button>
       ))}
